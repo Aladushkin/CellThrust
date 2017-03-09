@@ -21,6 +21,7 @@ double maxForceLJ = 0.5; // глобальна€ переменна€ дл€ ограничени€ давлени€
 int actinTime = 1000;
 int tractionTime = 2500;
 int stepTime = 1500;
+int twoSteps = 0;
 
 int Figure::r;
 int Figure::iterationCount;
@@ -34,6 +35,8 @@ int Figure::ligandCount=0;
 std::vector<int> Figure::shellType;
 thrust::host_vector<int> Figure::bondsCount;
 
+std::vector<std::pair<int, int>> Figure::v_ActinSchedule; 
+std::vector<std::pair<int, int>> Figure::v_TractionSchedule;
 
 double Figure::tractionForce=0;
 
@@ -75,6 +78,7 @@ void Figure::Start()
 	FindDistanseShell();
 
 	CreateReceptors();
+	CreateStepSchedule();
 
 	std::cout << " оличество шаров: " << h_balls.size() << std::endl;
 	
@@ -369,11 +373,50 @@ void Figure::FindDistanseShell()
 
 	a = (distShell / (6 * h_shell.size()));
 }
+
+void Figure::CreateStepSchedule()
+{
+	int restOfTime = (iterationCount-actinTime) % stepTime; // остаток времени
+	int stepCount = (iterationCount - actinTime) / stepTime;  // количество шагов
+	for (int i = 0; i < stepCount-1; i=i+2)
+	{	
+		std::pair<int, int> tmpActin(i*stepTime + actinTime, (i + 1)*stepTime + actinTime); // интервал дл€ актина
+		std::pair<int, int> tmpTraction((i + 1)*stepTime + actinTime, (i + 2)*stepTime + actinTime); // транспортный интервал
+		v_ActinSchedule.push_back(tmpActin);
+		v_TractionSchedule.push_back(tmpTraction);
+	}
+
+	if (stepTime % 2 == 1) // если число шагов - нечетное (последний полный шаг - актин)
+	{
+		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount+1)*stepTime + actinTime);
+		v_TractionSchedule.push_back(lastStep);
+
+		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
+		v_ActinSchedule.push_back(lastStep2);
+
+	}
+	else // если число шагов - четное (последний полный шаг - транспортный)
+	{
+		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount + 1)*stepTime + actinTime);
+		v_ActinSchedule.push_back(lastStep);
+
+		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
+		v_TractionSchedule.push_back(lastStep2);
+	}
+	for (int i = 0; i < v_ActinSchedule.size(); i++)
+	{
+		std::cout << "Actin :" << v_ActinSchedule[i].first << " - " << v_ActinSchedule[i].second << std::endl;
+	}
+	for (int i = 0; i < v_TractionSchedule.size(); i++)
+	{
+		std::cout << "Traction :" << v_TractionSchedule[i].first << " - " << v_TractionSchedule[i].second << std::endl;
+	}
+}
 //------------------------------------------------------------------------------------------
 void Figure::FindForcesBall(int iteration)
 {
 	//ѕодсчЄт сил Ћƒ дл€ шаров цитоплазмы
-	
+
 	for (int i = 0; i < h_balls.size(); i++)
 	{
 		//подсчЄт сил Ћƒ между шарами цитоплазмы
@@ -384,16 +427,16 @@ void Figure::FindForcesBall(int iteration)
 		double max = h_forces_test[0];
 		for (int i = 1; i < h_forces_test.size(); i++)
 		{
-			if (abs(h_forces_test[i])>max)
-			{
-				max = h_forces_test[i];
-			}
+		if (abs(h_forces_test[i])>max)
+		{
+		max = h_forces_test[i];
+		}
 		}
 		h_max_forces_test.push_back(max);
 		*/
 		//--------------------------------------------------------------------------------------
-		
-		
+
+
 		h_forcesBall[i] = nullVec;
 		//суммирование всех сил
 		h_forcesSumBall[i] = thrust::reduce(h_forcesBall.begin(), h_forcesBall.end(), nullVec, SumDouble3());
@@ -423,9 +466,8 @@ void Figure::FindForcesBall(int iteration)
 
 	//ѕодсчЄт сил т€жести
 	thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesSumBall.begin(), PlusG());
-
-	
-	if (((iteration > actinTime) && (iteration < actinTime+stepTime))||((iteration > actinTime + 2*stepTime) && (iteration < actinTime+3*stepTime)))
+	//ѕодсчЄт сил актина
+	if (iteration >= v_ActinSchedule[twoSteps].first && iteration < v_ActinSchedule[twoSteps].second)
 	{
 		for (int i = 0; i < branches.size(); i++)
 		{
@@ -435,13 +477,23 @@ void Figure::FindForcesBall(int iteration)
 		}
 	}
 	//ѕодсчет силы подт€гивани€
-	//”богое задание времени работы - переделать
-	if (((iteration > actinTime + stepTime) && (iteration < actinTime + stepTime * 2)) || ((iteration > actinTime + stepTime * 3) && (iteration <  actinTime + stepTime*4)))
+	if (iteration >= v_TractionSchedule[twoSteps].first && iteration < v_TractionSchedule[twoSteps].second)
 	{
 		for (int i = 0; i < branches.size(); i++)
 		{
 			thrust::transform(h_balls.begin(), h_balls.end(), ballType.begin(), h_forcesBall.begin(), FindTractionForce(branches[i], kernel, tractionForce));
 			thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesBall.begin(), h_forcesSumBall.begin(), PlusDouble3());
+		}
+	}
+	// если итераци€ не попала в указанные интервалы, значит либо она попала в интревал, где силы еще не включены, либо в следующий шаг
+	if (iteration >= 0 && iteration < actinTime)
+	{
+	}
+	else
+	{
+		if ((iteration >= v_ActinSchedule[twoSteps].first || iteration < v_TractionSchedule[twoSteps].second) == 0)
+		{
+			twoSteps++;
 		}
 	}
 }

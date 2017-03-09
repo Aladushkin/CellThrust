@@ -1,4 +1,4 @@
-#ifndef __kerA__Actin__
+ #ifndef __kerA__Actin__
 #define __kerA__Actin__
 
 #include <thrust\host_vector.h>

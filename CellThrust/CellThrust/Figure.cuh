@@ -15,6 +15,10 @@ private:
 	static int ligandCount; // количество лигандов
 	static std::vector<int> shellType; //вектор, из нулей единицы, нужен для определения шаров рецепторов и оболочки
 	static std::vector<int> ballType; //вектор, из нулей единицы, нужен для определения активных и обычных шаров
+
+	static std::vector<std::pair<int, int>> v_ActinSchedule; //вектор временных интервалов для включения актина
+	static std::vector<std::pair<int, int>> v_TractionSchedule; //вектор временных интервалов для включения транспортной силы
+
 	/*
 	static double l0; // 
 	static double sigma_b; // spring constant (0.1 – 2.5 pN/nm)
@@ -71,6 +75,8 @@ private:
 
 	static void CreateReceptors();
 	static void CreateLigands();
+
+	static void CreateStepSchedule();
 	
 	static void InitializeVariable();
 	static void FindDistanseShell();

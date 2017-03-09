@@ -17,8 +17,8 @@ struct FindAdhesionContacts
 			int n_bonds;
 			double distance = sqrt((ligand.x - a->x)*(ligand.x - a->x) + (ligand.y - a->y)*(ligand.y - a->y) + (ligand.z - a->z)*(ligand.z - a->z));
 
-			double k_f = 6 * exp(-0.0001*(distance - 0.1)*(distance - 0.1) / 2 / (1.38*pow(10, -8)) / 310); // k0_f*exp(-sigma_ts*(l - l0)*(l - l0) / 2 / K_B / T);
-			double k_r = 1.6 * exp(-0.00005*(distance - 0.1)*(distance - 0.1) / 2 / (1.38*pow(10, -8)) / 310); // k0_r*exp((sigma_b-sigma_ts)*(l - l0)*(l - l0) / 2 / K_B / T)
+			double k_f = 5 * exp(-0.0004*distance*distance / 2 / (1.38*pow(10, -8)) / 310); // k0_f*exp(-sigma_ts*(l - l0)*(l - l0) / 2 / K_B / T);
+			double k_r = 0.5 * exp(-0.0001*distance*distance / 2 / (1.38*pow(10, -8)) / 310); // k0_r*exp((sigma_b-sigma_ts)*(l - l0)*(l - l0) / 2 / K_B / T)
 			double P_f = 1 - exp(-k_f); //-k_f
 			double P_r = 1 - exp(-k_r);
 
@@ -43,21 +43,21 @@ struct FindAdhesionContacts
 					double P_f = 1 - exp(-k_f);
 					double P_r = 1 - exp(-k_r);
 
-					// разрыв существующих связей
-					for (int i = 0; i < n_bonds; i++)
+					// разрыв существующих связей (одной существующей связи)
+					//	for (int i = 0; i < n_bonds; i++)
+					//		{
+					double N_ran2 = 0.01 * (rand() % 101);
+					if (P_r > N_ran2)
 					{
-						double N_ran2 = 0.01 * (rand() % 101);
-						if (P_r > N_ran2)
-						{
-							n_bonds = b - 1;
-						}
+						n_bonds = b - 1;
 					}
+					//				
 
 					// создание новых связей
 					double N_ran1 = 0.01 * (rand() % 101);
 					if (P_f > N_ran1)
 					{
-						n_bonds = b + 1; 
+						n_bonds = b + 1;
 					}
 
 					if (n_bonds <= 0) // число связей не может быть отрицательным
@@ -100,9 +100,9 @@ struct FindAdhesionForce
 				norm_rec_lig.y = rec_lig.y / distance;
 				norm_rec_lig.z = rec_lig.z / distance;
 
-				double adhesionForce = 100*0.00095*b*(distance - 0.1);
+				double adhesionForce = 10*0.0003*b*distance; // 10 - костыль
 
-				std::cout << "Сила адгезии с лигандом " << ligand.x << " " << ligand.y << " " << ligand.z << " = " << adhesionForce << ", толщина связи = " << b << std::endl;
+				std::cout << "Сила адгезии с лигандом " << ligand.x << " " << ligand.y << " " << ligand.z << " = " << adhesionForce <<", дистанция = "<< distance <<", толщина связи = " << b << std::endl;
 
 				result.x = norm_rec_lig.x*adhesionForce;
 				result.y = norm_rec_lig.y*adhesionForce;
