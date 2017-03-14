@@ -1,4 +1,4 @@
-#include "Figure.cuh"
+п»ї#include "Figure.cuh"
 #include <iostream>
 #include <fstream>
 
@@ -17,7 +17,7 @@
 #include "Adhesion.cuh"
 #include "Traction.cuh"
 
-double maxForceLJ = 0.5; // глобальная переменная для ограничения давления
+double maxForceLJ = 0.5; // РіР»РѕР±Р°Р»СЊРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РґР°РІР»РµРЅРёСЏ
 int actinTime = 1000;
 int tractionTime = 2500;
 int stepTime = 1500;
@@ -80,9 +80,9 @@ void Figure::Start()
 	CreateReceptors();
 	CreateStepSchedule();
 
-	std::cout << "Количество шаров: " << h_balls.size() << std::endl;
+	std::cout << "РљРѕР»РёС‡РµСЃС‚РІРѕ С€Р°СЂРѕРІ: " << h_balls.size() << std::endl;
 	
-	//сохраняем начальное положение
+	//СЃРѕС…СЂР°РЅСЏРµРј РЅР°С‡Р°Р»СЊРЅРѕРµ РїРѕР»РѕР¶РµРЅРёРµ
 	ToFile(0);
 	
 	clock_t time;
@@ -109,18 +109,18 @@ void Figure::Start()
 
 void Figure::Config()
 {
-	std::cout << "Введите диаметр клетки: "; // в микрометрах 
+	std::cout << "Р’РІРµРґРёС‚Рµ РґРёР°РјРµС‚СЂ РєР»РµС‚РєРё: "; // РІ РјРёРєСЂРѕРјРµС‚СЂР°С… 
 	std::cin >> r;
 
 	int wallCount;
-	std::cout << "Введите количество плоскостей\n";
+	std::cout << "Р’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїР»РѕСЃРєРѕСЃС‚РµР№\n";
 	std::cin >> wallCount;
 
 	walls = thrust::host_vector<double4>(wallCount);
 
 	for (int i = 0; i < walls.size(); i++)
 	{
-		std::cout << "Введите коэффициенты уравнения плоскости " << i + 1 << "\n";
+		std::cout << "Р’РІРµРґРёС‚Рµ РєРѕСЌС„С„РёС†РёРµРЅС‚С‹ СѓСЂР°РІРЅРµРЅРёСЏ РїР»РѕСЃРєРѕСЃС‚Рё " << i + 1 << "\n";
 		
 		std::cout << "A = ";
 		std::cin >> walls[i].x;
@@ -136,14 +136,14 @@ void Figure::Config()
 	}
 
 	int actinCount;
-	std::cout << "Введите количество актиновых нитей\n";
+	std::cout << "Р’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р°РєС‚РёРЅРѕРІС‹С… РЅРёС‚РµР№\n";
 	std::cin >> actinCount;
 
 	branches = thrust::host_vector<double3>(actinCount);
 
 	for (int i = 0; i < branches.size(); i++)
 	{
-		std::cout << "Введите вектор роста актиновой нити " << i + 1 << "\n";
+		std::cout << "Р’РІРµРґРёС‚Рµ РІРµРєС‚РѕСЂ СЂРѕСЃС‚Р° Р°РєС‚РёРЅРѕРІРѕР№ РЅРёС‚Рё " << i + 1 << "\n";
 		
 		std::cout << "x = ";
 		std::cin >> branches[i].x;
@@ -155,32 +155,32 @@ void Figure::Config()
 		std::cin >> branches[i].z;		
 	}
 	
-	std::cout << "Введите число итераций\n";
+	std::cout << "Р’РІРµРґРёС‚Рµ С‡РёСЃР»Рѕ РёС‚РµСЂР°С†РёР№\n";
 	std::cin >> iterationCount;
 
 	if (branches.size()!=0)
 	{
-	std::cout << "Введите радиус актиновой нити\n";
-	std::cin >> actinRadius; // в микрометрах
+	std::cout << "Р’РІРµРґРёС‚Рµ СЂР°РґРёСѓСЃ Р°РєС‚РёРЅРѕРІРѕР№ РЅРёС‚Рё\n";
+	std::cin >> actinRadius; // РІ РјРёРєСЂРѕРјРµС‚СЂР°С…
 
-	std::cout << "Введите силу актина \n";
+	std::cout << "Р’РІРµРґРёС‚Рµ СЃРёР»Сѓ Р°РєС‚РёРЅР° \n";
 	std::cin >> actinForce; // ???
 
-	std::cout << "Введите силу тяги \n";
+	std::cout << "Р’РІРµРґРёС‚Рµ СЃРёР»Сѓ С‚СЏРіРё \n";
 	std::cin >> tractionForce;
 	}
 
-	std::cout << "Введите количество лигандов \n";
+	std::cout << "Р’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р»РёРіР°РЅРґРѕРІ \n";
 	std::cin >> ligandCount;
 
-	std::cout << "Введите количество рецепторов \n";
+	std::cout << "Р’РІРµРґРёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЂРµС†РµРїС‚РѕСЂРѕРІ \n";
 	std::cin >> receptorCount;
 
 }
 
 void Figure::CreateSphereCytoplasmAndKernel()
 {
-	//для работы с CUDA создаётся отдельный вектор на хосте, сейчас неактуален, но впоследствии пригодится
+	//РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ CUDA СЃРѕР·РґР°С‘С‚СЃСЏ РѕС‚РґРµР»СЊРЅС‹Р№ РІРµРєС‚РѕСЂ РЅР° С…РѕСЃС‚Рµ, СЃРµР№С‡Р°СЃ РЅРµР°РєС‚СѓР°Р»РµРЅ, РЅРѕ РІРїРѕСЃР»РµРґСЃС‚РІРёРё РїСЂРёРіРѕРґРёС‚СЃСЏ
 	thrust::host_vector<double3> tempBalls;
 	double3 temp;
 
@@ -233,14 +233,14 @@ void Figure::FindActiveBalls()
 				norm_ker_branch.x = ker_branch.x / mod_ker_branch;
 				norm_ker_branch.y = ker_branch.y / mod_ker_branch;
 				norm_ker_branch.z = ker_branch.z / mod_ker_branch;
-				//вектор соединяющий ядро и мишень
+				//РІРµРєС‚РѕСЂ СЃРѕРµРґРёРЅСЏСЋС‰РёР№ СЏРґСЂРѕ Рё РјРёС€РµРЅСЊ
 
 				double3 ker_a;
 
 				ker_a.x = h_balls[i].x - kernel.x;
 				ker_a.y = h_balls[i].y - kernel.y;
 				ker_a.z = h_balls[i].z - kernel.z;
-				//вектор соединяющий ядро и шар
+				//РІРµРєС‚РѕСЂ СЃРѕРµРґРёРЅСЏСЋС‰РёР№ СЏРґСЂРѕ Рё С€Р°СЂ
 
 				double pr_a_tau;
 				double3 a_tau;
@@ -258,14 +258,14 @@ void Figure::FindActiveBalls()
 				a_rad.z = ker_a.z - a_tau.z;
 				mod_a_rad = sqrt(a_rad.x*a_rad.x + a_rad.y*a_rad.y + a_rad.z*a_rad.z);
 
-				if ((pr_a_tau > r / 4)&(mod_a_rad < actinRadius)) //проекция на вектор направления должна быть положительна и больше d/4, радиальная проекция меньше радиуса вырезаемого цилиндра
+				if ((pr_a_tau > r / 4)&(mod_a_rad < actinRadius)) //РїСЂРѕРµРєС†РёСЏ РЅР° РІРµРєС‚РѕСЂ РЅР°РїСЂР°РІР»РµРЅРёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїРѕР»РѕР¶РёС‚РµР»СЊРЅР° Рё Р±РѕР»СЊС€Рµ d/4, СЂР°РґРёР°Р»СЊРЅР°СЏ РїСЂРѕРµРєС†РёСЏ РјРµРЅСЊС€Рµ СЂР°РґРёСѓСЃР° РІС‹СЂРµР·Р°РµРјРѕРіРѕ С†РёР»РёРЅРґСЂР°
 				{
 					ballType[i] = 1;
 					n++;
 				}
 			}
 		}
-	std::cout << "Количество активных шаров: " << n << std::endl;
+	std::cout << "РљРѕР»РёС‡РµСЃС‚РІРѕ Р°РєС‚РёРІРЅС‹С… С€Р°СЂРѕРІ: " << n << std::endl;
 }
 
 void Figure::CreateReceptors()
@@ -275,10 +275,10 @@ void Figure::CreateReceptors()
 	int n = 0;
 	while (n<receptorCount)
 	{
-		int x = rand() % (h_shell.size() - 1); // индекс для выбора случайного шара оболочки
+		int x = rand() % (h_shell.size() - 1); // РёРЅРґРµРєСЃ РґР»СЏ РІС‹Р±РѕСЂР° СЃР»СѓС‡Р°Р№РЅРѕРіРѕ С€Р°СЂР° РѕР±РѕР»РѕС‡РєРё
 		if (shellType[x] != 1)
 			{
-				shellType[x]=1; // если нет - добавляем (1 - шар рецептор)
+				shellType[x]=1; // РµСЃР»Рё РЅРµС‚ - РґРѕР±Р°РІР»СЏРµРј (1 - С€Р°СЂ СЂРµС†РµРїС‚РѕСЂ)
 				l_receptors[x]=&(h_shell[x]);
 				n++;
 			}
@@ -289,23 +289,23 @@ void Figure::CreateLigands()
 {
 	for (int j = 0; j <= walls.size()- 1; j++)
 	{
-		double3 n_vector; // нормальный вектор поверхности
-		double h = 0.3; // h - высота расположения лиганда над поверхностью
+		double3 n_vector; // РЅРѕСЂРјР°Р»СЊРЅС‹Р№ РІРµРєС‚РѕСЂ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё
+		double h = 0.3; // h - РІС‹СЃРѕС‚Р° СЂР°СЃРїРѕР»РѕР¶РµРЅРёСЏ Р»РёРіР°РЅРґР° РЅР°Рґ РїРѕРІРµСЂС…РЅРѕСЃС‚СЊСЋ
 		n_vector.x = walls[j].x; n_vector.y = walls[j].y; n_vector.z = walls[j].z - walls[j].w / walls[j].z;
 		while (h_ligands.size() < ligandCount)
 		{
-			double x = (0.01 * (rand() % 101)) * 2 * r - r; // задаем круг, у которого радиус - двойной радиус цитоплазмы
+			double x = (0.01 * (rand() % 101)) * 2 * r - r; // Р·Р°РґР°РµРј РєСЂСѓРі, Сѓ РєРѕС‚РѕСЂРѕРіРѕ СЂР°РґРёСѓСЃ - РґРІРѕР№РЅРѕР№ СЂР°РґРёСѓСЃ С†РёС‚РѕРїР»Р°Р·РјС‹
 			double y = (0.01 * (rand() % 101)) * 2 * r - r;
-			if (pow(x, 2) + pow(y, 2) <= pow(r, 2)) // отсеиваем точки, что не входят в круг
+			if (pow(x, 2) + pow(y, 2) <= pow(r, 2)) // РѕС‚СЃРµРёРІР°РµРј С‚РѕС‡РєРё, С‡С‚Рѕ РЅРµ РІС…РѕРґСЏС‚ РІ РєСЂСѓРі
 			{
-				double z = (walls[j].w - walls[j].x * x - walls[j].y * y) / -walls[j].z; // Пока работает только для плоскости где С!= 0 
+				double z = (walls[j].w - walls[j].x * x - walls[j].y * y) / -walls[j].z; // РџРѕРєР° СЂР°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ РґР»СЏ РїР»РѕСЃРєРѕСЃС‚Рё РіРґРµ РЎ!= 0 
 
-				double3 n_vect; // нормальный вектор поверхности в точке расположения лиганда
-				n_vect.x = n_vector.x + x; n_vect.y = n_vector.y + y; n_vect.z = n_vector.z + z; // переносим вектор к лиганду
+				double3 n_vect; // РЅРѕСЂРјР°Р»СЊРЅС‹Р№ РІРµРєС‚РѕСЂ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё РІ С‚РѕС‡РєРµ СЂР°СЃРїРѕР»РѕР¶РµРЅРёСЏ Р»РёРіР°РЅРґР°
+				n_vect.x = n_vector.x + x; n_vect.y = n_vector.y + y; n_vect.z = n_vector.z + z; // РїРµСЂРµРЅРѕСЃРёРј РІРµРєС‚РѕСЂ Рє Р»РёРіР°РЅРґСѓ
 				double dist = sqrt(n_vect.x*n_vect.x + n_vector.y*n_vector.y + n_vector.z*n_vector.z);
-				n_vect.x = n_vect.x / dist; n_vect.y = n_vect.y / dist; n_vect.z = n_vect.z / dist; // нормируем
+				n_vect.x = n_vect.x / dist; n_vect.y = n_vect.y / dist; n_vect.z = n_vect.z / dist; // РЅРѕСЂРјРёСЂСѓРµРј
 
-				x = x - n_vect.x*h; y = y - n_vect.y*h; z = z - n_vect.z*h; // приподнимаем лиганды над поверхностью (в связи с реализацией коллизий, при моделировании клетка "висит" над плоскостью)
+				x = x - n_vect.x*h; y = y - n_vect.y*h; z = z - n_vect.z*h; // РїСЂРёРїРѕРґРЅРёРјР°РµРј Р»РёРіР°РЅРґС‹ РЅР°Рґ РїРѕРІРµСЂС…РЅРѕСЃС‚СЊСЋ (РІ СЃРІСЏР·Рё СЃ СЂРµР°Р»РёР·Р°С†РёРµР№ РєРѕР»Р»РёР·РёР№, РїСЂРё РјРѕРґРµР»РёСЂРѕРІР°РЅРёРё РєР»РµС‚РєР° "РІРёСЃРёС‚" РЅР°Рґ РїР»РѕСЃРєРѕСЃС‚СЊСЋ)
 
 				double3 ligand;
 				ligand.x = x;
@@ -332,14 +332,14 @@ void Figure::InitializeVariable()
 
 	neighbors = thrust::host_vector<thrust::host_vector<double3*>>(h_shell.size());
 
-	bondsCount = thrust::host_vector<int>(h_shell.size(), 0); // изначально адгезионных связей нет
-	l_receptors = thrust::host_vector<double3*>(h_shell.size(), NULL); // массив рецепторов изначально пуст
+	bondsCount = thrust::host_vector<int>(h_shell.size(), 0); // РёР·РЅР°С‡Р°Р»СЊРЅРѕ Р°РґРіРµР·РёРѕРЅРЅС‹С… СЃРІСЏР·РµР№ РЅРµС‚
+	l_receptors = thrust::host_vector<double3*>(h_shell.size(), NULL); // РјР°СЃСЃРёРІ СЂРµС†РµРїС‚РѕСЂРѕРІ РёР·РЅР°С‡Р°Р»СЊРЅРѕ РїСѓСЃС‚
 }
 
 void Figure::FindDistanseShell()
 {
 	thrust::host_vector<double> vecDist(h_shell.size());
-	//здесь ссылку при переводе на CUDA надо будет поменять на device_reference
+	//Р·РґРµСЃСЊ СЃСЃС‹Р»РєСѓ РїСЂРё РїРµСЂРµРІРѕРґРµ РЅР° CUDA РЅР°РґРѕ Р±СѓРґРµС‚ РїРѕРјРµРЅСЏС‚СЊ РЅР° device_reference
 
 	double distShell = 0;
 	const double max = r * 4;
@@ -347,7 +347,7 @@ void Figure::FindDistanseShell()
 	{
 		thrust::transform(h_shell.begin(), h_shell.end(), vecDist.begin(), FindDistanse(h_shell[i]));
 		
-		//переписать в отдельный метод, но пока так оставить
+		//РїРµСЂРµРїРёСЃР°С‚СЊ РІ РѕС‚РґРµР»СЊРЅС‹Р№ РјРµС‚РѕРґ, РЅРѕ РїРѕРєР° С‚Р°Рє РѕСЃС‚Р°РІРёС‚СЊ
 		vecDist[i] = max;
 
 		for (int j = 0; j < 6; j++)
@@ -367,7 +367,7 @@ void Figure::FindDistanseShell()
 			distShell += dist;
 		}
 
-		//добавляем в конец шар относительно которого искали соседей 
+		//РґРѕР±Р°РІР»СЏРµРј РІ РєРѕРЅРµС† С€Р°СЂ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєРѕС‚РѕСЂРѕРіРѕ РёСЃРєР°Р»Рё СЃРѕСЃРµРґРµР№ 
 		neighbors[i].push_back(&(h_shell[i]));
 	}
 
@@ -375,78 +375,78 @@ void Figure::FindDistanseShell()
 }
 
 void Figure::CreateStepSchedule()
-{
-	int restOfTime = (iterationCount-actinTime) % stepTime; // остаток времени
-	int stepCount = (iterationCount - actinTime) / stepTime;  // количество шагов
-	for (int i = 0; i < stepCount-1; i=i+2)
-	{	
-		std::pair<int, int> tmpActin(i*stepTime + actinTime, (i + 1)*stepTime + actinTime); // интервал для актина
-		std::pair<int, int> tmpTraction((i + 1)*stepTime + actinTime, (i + 2)*stepTime + actinTime); // транспортный интервал
-		v_ActinSchedule.push_back(tmpActin);
-		v_TractionSchedule.push_back(tmpTraction);
+ {
+ 	int restOfTime = (iterationCount-actinTime) % stepTime; // Г®Г±ГІГ ГІГ®ГЄ ГўГ°ГҐГ¬ГҐГ­ГЁ
+ 	int stepCount = (iterationCount - actinTime) / stepTime;  // ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГёГ ГЈГ®Гў
+ 	for (int i = 0; i < stepCount-1; i=i+2)
+ 	{	
+ 	std::pair<int, int> tmpActin(i*stepTime + actinTime, (i + 1)*stepTime + actinTime); // ГЁГ­ГІГҐГ°ГўГ Г« Г¤Г«Гї Г ГЄГІГЁГ­Г 
+ 		std::pair<int, int> tmpTraction((i + 1)*stepTime + actinTime, (i + 2)*stepTime + actinTime); // ГІГ°Г Г­Г±ГЇГ®Г°ГІГ­Г»Г© ГЁГ­ГІГҐГ°ГўГ Г«
+ 		v_ActinSchedule.push_back(tmpActin);
+ 		v_TractionSchedule.push_back(tmpTraction);
+ 	}
+ 
+ 	if (stepTime % 2 == 1) // ГҐГ±Г«ГЁ Г·ГЁГ±Г«Г® ГёГ ГЈГ®Гў - Г­ГҐГ·ГҐГІГ­Г®ГҐ (ГЇГ®Г±Г«ГҐГ¤Г­ГЁГ© ГЇГ®Г«Г­Г»Г© ГёГ ГЈ - Г ГЄГІГЁГ­)
+ 	{
+ 		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount+1)*stepTime + actinTime);
+ 		v_TractionSchedule.push_back(lastStep);
+ 
+ 		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
+ 		v_ActinSchedule.push_back(lastStep2);
+ 
 	}
-
-	if (stepTime % 2 == 1) // если число шагов - нечетное (последний полный шаг - актин)
-	{
-		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount+1)*stepTime + actinTime);
-		v_TractionSchedule.push_back(lastStep);
-
-		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
-		v_ActinSchedule.push_back(lastStep2);
-
-	}
-	else // если число шагов - четное (последний полный шаг - транспортный)
-	{
-		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount + 1)*stepTime + actinTime);
-		v_ActinSchedule.push_back(lastStep);
-
-		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
-		v_TractionSchedule.push_back(lastStep2);
-	}
-	for (int i = 0; i < v_ActinSchedule.size(); i++)
-	{
-		std::cout << "Actin :" << v_ActinSchedule[i].first << " - " << v_ActinSchedule[i].second << std::endl;
-	}
-	for (int i = 0; i < v_TractionSchedule.size(); i++)
-	{
-		std::cout << "Traction :" << v_TractionSchedule[i].first << " - " << v_TractionSchedule[i].second << std::endl;
-	}
-}
+ 	else // ГҐГ±Г«ГЁ Г·ГЁГ±Г«Г® ГёГ ГЈГ®Гў - Г·ГҐГІГ­Г®ГҐ (ГЇГ®Г±Г«ГҐГ¤Г­ГЁГ© ГЇГ®Г«Г­Г»Г© ГёГ ГЈ - ГІГ°Г Г­Г±ГЇГ®Г°ГІГ­Г»Г©)
+ 	{
+ 		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount + 1)*stepTime + actinTime);
+ 		v_ActinSchedule.push_back(lastStep);
+ 
+ 		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
+ 		v_TractionSchedule.push_back(lastStep2);
+ 	}
+ 	for (int i = 0; i < v_ActinSchedule.size(); i++)
+ 	{
+ 		std::cout << "Actin :" << v_ActinSchedule[i].first << " - " << v_ActinSchedule[i].second << std::endl;
+ 	}
+ 	for (int i = 0; i < v_TractionSchedule.size(); i++)
+ 	{
+ 		std::cout << "Traction :" << v_TractionSchedule[i].first << " - " << v_TractionSchedule[i].second << std::endl;
+ 	}
+ }
 //------------------------------------------------------------------------------------------
 void Figure::FindForcesBall(int iteration)
 {
-	//Подсчёт сил ЛД для шаров цитоплазмы
-
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» Р›Р” РґР»СЏ С€Р°СЂРѕРІ С†РёС‚РѕРїР»Р°Р·РјС‹
+	
 	for (int i = 0; i < h_balls.size(); i++)
 	{
-		//подсчёт сил ЛД между шарами цитоплазмы
+		//РїРѕРґСЃС‡С‘С‚ СЃРёР» Р›Р” РјРµР¶РґСѓ С€Р°СЂР°РјРё С†РёС‚РѕРїР»Р°Р·РјС‹
 		thrust::transform(h_balls.begin(), h_balls.end(), h_forcesBall.begin(), FindForcesLJ(h_balls[i], maxForceLJ));
-		/* это для поиска максимальной силы взаимодействия при нормальной работе (для ограни)
+		/* СЌС‚Рѕ РґР»СЏ РїРѕРёСЃРєР° РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ СЃРёР»С‹ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ РїСЂРё РЅРѕСЂРјР°Р»СЊРЅРѕР№ СЂР°Р±РѕС‚Рµ (РґР»СЏ РѕРіСЂР°РЅРё)
 		//--------------------------------------------------------------------------------------
 		thrust::transform(h_balls.begin(), h_balls.end(), h_forces_test.begin(), FindForceTest(h_balls[i]));
 		double max = h_forces_test[0];
 		for (int i = 1; i < h_forces_test.size(); i++)
 		{
-		if (abs(h_forces_test[i])>max)
-		{
-		max = h_forces_test[i];
-		}
+			if (abs(h_forces_test[i])>max)
+			{
+				max = h_forces_test[i];
+			}
 		}
 		h_max_forces_test.push_back(max);
 		*/
 		//--------------------------------------------------------------------------------------
-
-
+		
+		
 		h_forcesBall[i] = nullVec;
-		//суммирование всех сил
+		//СЃСѓРјРјРёСЂРѕРІР°РЅРёРµ РІСЃРµС… СЃРёР»
 		h_forcesSumBall[i] = thrust::reduce(h_forcesBall.begin(), h_forcesBall.end(), nullVec, SumDouble3());
 	}
 
-	//подсчёт сил ЛД между шарами цитоплазмы и оболочки
+	//РїРѕРґСЃС‡С‘С‚ СЃРёР» Р›Р” РјРµР¶РґСѓ С€Р°СЂР°РјРё С†РёС‚РѕРїР»Р°Р·РјС‹ Рё РѕР±РѕР»РѕС‡РєРё
 	for (int i = 0; i < h_balls.size(); i++)
 	{
 		thrust::transform(h_shell.begin(), h_shell.end(), h_forcesShell.begin(), FindForcesShellCytLJ(h_balls[i], maxForceLJ));
-		//суммирование всех сил
+		//СЃСѓРјРјРёСЂРѕРІР°РЅРёРµ РІСЃРµС… СЃРёР»
 		double3 force = thrust::reduce(h_forcesShell.begin(), h_forcesShell.end(), nullVec, SumDouble3());
 
 		h_forcesSumBall[i].x += force.x;
@@ -454,29 +454,30 @@ void Figure::FindForcesBall(int iteration)
 		h_forcesSumBall[i].z += force.z;
 	}
 
-	//подсчёт сил ЛД между шарами цитоплазмы и ядром
+	//РїРѕРґСЃС‡С‘С‚ СЃРёР» Р›Р” РјРµР¶РґСѓ С€Р°СЂР°РјРё С†РёС‚РѕРїР»Р°Р·РјС‹ Рё СЏРґСЂРѕРј
 	thrust::transform(h_balls.begin(), h_balls.end(), h_forcesBall.begin(), FindForcesLJ(kernel, maxForceLJ));
 	thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesBall.begin(), h_forcesSumBall.begin(), PlusDouble3());
 
-	//подсчёт коллизий от стен
+	//РїРѕРґСЃС‡С‘С‚ РєРѕР»Р»РёР·РёР№ РѕС‚ СЃС‚РµРЅ
 	for (int i = 0; i < walls.size(); i++) {
 		thrust::transform(h_balls.begin(), h_balls.end(), h_forcesBall.begin(), FindCollision(walls[i]));
 		thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesBall.begin(), h_forcesSumBall.begin(), PlusDouble3());
 	}
 
-	//Подсчёт сил тяжести
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» С‚СЏР¶РµСЃС‚Рё
 	thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesSumBall.begin(), PlusG());
-	//Подсчёт сил актина
+
+	
 	if (iteration >= v_ActinSchedule[twoSteps].first && iteration < v_ActinSchedule[twoSteps].second)
 	{
 		for (int i = 0; i < branches.size(); i++)
 		{
-			//передаю лишние параметры в функтор - переделать----------------------------------------
+			//РїРµСЂРµРґР°СЋ Р»РёС€РЅРёРµ РїР°СЂР°РјРµС‚СЂС‹ РІ С„СѓРЅРєС‚РѕСЂ - РїРµСЂРµРґРµР»Р°С‚СЊ----------------------------------------
 			thrust::transform(h_balls.begin(), h_balls.end(), ballType.begin(), h_forcesBall.begin(), FindActinForce(branches[i], kernel, actinRadius, actinForce, r));
 			thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesBall.begin(), h_forcesSumBall.begin(), PlusDouble3());
 		}
 	}
-	//Подсчет силы подтягивания
+	//РџРѕРґСЃС‡РµС‚ СЃРёР»С‹ РїРѕРґС‚СЏРіРёРІР°РЅРёСЏ
 	if (iteration >= v_TractionSchedule[twoSteps].first && iteration < v_TractionSchedule[twoSteps].second)
 	{
 		for (int i = 0; i < branches.size(); i++)
@@ -484,45 +485,44 @@ void Figure::FindForcesBall(int iteration)
 			thrust::transform(h_balls.begin(), h_balls.end(), ballType.begin(), h_forcesBall.begin(), FindTractionForce(branches[i], kernel, tractionForce));
 			thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesBall.begin(), h_forcesSumBall.begin(), PlusDouble3());
 		}
-	}
-	// если итерация не попала в указанные интервалы, значит либо она попала в интревал, где силы еще не включены, либо в следующий шаг
-	if (iteration >= 0 && iteration < actinTime)
-	{
-	}
-	else
-	{
-		if ((iteration >= v_ActinSchedule[twoSteps].first || iteration < v_TractionSchedule[twoSteps].second) == 0)
-		{
-			twoSteps++;
-		}
+			if (iteration >= 0 && iteration < actinTime)
+ 	{
+ 	}
+ 	else
+ 	{
+ 		if ((iteration >= v_ActinSchedule[twoSteps].first || iteration < v_TractionSchedule[twoSteps].second) == 0)
+ 		{
+ 			twoSteps++;
+ 		}
+ 	}
 	}
 }
 
 void Figure::FindForcesShell()
 {
-	//Подсчёт сил ЛД между шарами оболочки и цитоплазмы
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» Р›Р” РјРµР¶РґСѓ С€Р°СЂР°РјРё РѕР±РѕР»РѕС‡РєРё Рё С†РёС‚РѕРїР»Р°Р·РјС‹
 	for (int i = 0; i < h_shell.size(); i++) {
 		thrust::transform(h_balls.begin(), h_balls.end(), h_forcesBall.begin(), FindForcesShellCytLJ(h_shell[i], maxForceLJ));
 		h_forcesSumShell[i] = thrust::reduce(h_forcesBall.begin(), h_forcesBall.end(), nullVec, SumDouble3());
 	}
 
-	//Подсчёт сил между шарами оболочки
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» РјРµР¶РґСѓ С€Р°СЂР°РјРё РѕР±РѕР»РѕС‡РєРё
 	thrust::transform(neighbors.begin(), neighbors.end(), h_forcesShell.begin(), FindForcesShellLJ(a, maxForceLJ));
 	thrust::transform(h_forcesSumShell.begin(), h_forcesSumShell.end(), h_forcesShell.begin(), h_forcesSumShell.begin(), PlusDouble3());
 
-	//Подсчёт сил ЛД между шарами оболочки и ядром
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» Р›Р” РјРµР¶РґСѓ С€Р°СЂР°РјРё РѕР±РѕР»РѕС‡РєРё Рё СЏРґСЂРѕРј
 	thrust::transform(h_shell.begin(), h_shell.end(), h_forcesShell.begin(), FindForcesShellCytLJ(kernel, maxForceLJ));
 	thrust::transform(h_forcesSumShell.begin(), h_forcesSumShell.end(), h_forcesShell.begin(), h_forcesSumShell.begin(), PlusDouble3());
 
-	//подсчёт коллизий от стен
+	//РїРѕРґСЃС‡С‘С‚ РєРѕР»Р»РёР·РёР№ РѕС‚ СЃС‚РµРЅ
 	for (int i = 0; i < walls.size(); i++) {
 		thrust::transform(h_shell.begin(), h_shell.end(), h_forcesShell.begin(), FindCollision(walls[i]));
 		thrust::transform(h_forcesSumShell.begin(), h_forcesSumShell.end(), h_forcesShell.begin(), h_forcesSumShell.begin(), PlusDouble3());
 	}
 
-	//Подсчёт сил тяжести
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» С‚СЏР¶РµСЃС‚Рё
 	thrust::transform(h_forcesSumShell.begin(), h_forcesSumShell.end(), h_forcesSumShell.begin(), PlusG());
-	//Подсчет силы адгезии
+	//РџРѕРґСЃС‡РµС‚ СЃРёР»С‹ Р°РґРіРµР·РёРё
 	for (int i = 0; i < h_ligands.size(); i++)
 	{
 		thrust::transform(l_receptors.begin(), l_receptors.end(), bondsCount.begin(), bondsCount.begin(), FindAdhesionContacts(h_ligands[i]));
@@ -534,7 +534,7 @@ void Figure::FindForcesShell()
 
 void Figure::FindForcesKernel(int iteration)
 {
-	//Подсчёт сил ЛД между ядром и шарами цитоплазмы
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» Р›Р” РјРµР¶РґСѓ СЏРґСЂРѕРј Рё С€Р°СЂР°РјРё С†РёС‚РѕРїР»Р°Р·РјС‹
 	thrust::transform(h_balls.begin(), h_balls.end(), h_forcesBall.begin(), FindForcesLJ(kernel, maxForceLJ));
 	forceSumKernel = thrust::reduce(h_forcesBall.begin(), h_forcesBall.end(), nullVec, SumDouble3());
 
@@ -542,7 +542,7 @@ void Figure::FindForcesKernel(int iteration)
 	forceSumKernel.y = -forceSumKernel.y;
 	forceSumKernel.z = -forceSumKernel.z;
 
-	//Подсчёт сил ЛД между ядром и шарами оболочки
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» Р›Р” РјРµР¶РґСѓ СЏРґСЂРѕРј Рё С€Р°СЂР°РјРё РѕР±РѕР»РѕС‡РєРё
 	thrust::transform(h_shell.begin(), h_shell.end(), h_forcesShell.begin(), FindForcesShellCytLJ(kernel, maxForceLJ));
 	forceKernel = thrust::reduce(h_forcesShell.begin(), h_forcesShell.end(), nullVec, SumDouble3());
 	
@@ -550,7 +550,7 @@ void Figure::FindForcesKernel(int iteration)
 	forceSumKernel.y += -forceKernel.y;
 	forceSumKernel.z += -forceKernel.z;
 
-	//Подсчёт коллизий от стен
+	//РџРѕРґСЃС‡С‘С‚ РєРѕР»Р»РёР·РёР№ РѕС‚ СЃС‚РµРЅ
 	for (int i = 0; i < walls.size(); i++) {
 		forceKernel = FindCollision(walls[i])(kernel);
 
@@ -559,10 +559,10 @@ void Figure::FindForcesKernel(int iteration)
 		forceSumKernel.z += forceKernel.z;
 	}
 
-	//Подсчёт сил тяжести
+	//РџРѕРґСЃС‡С‘С‚ СЃРёР» С‚СЏР¶РµСЃС‚Рё
 	forceSumKernel = PlusG()(forceSumKernel);
 
-	//Подсчет силы подтягивания
+	//РџРѕРґСЃС‡РµС‚ СЃРёР»С‹ РїРѕРґС‚СЏРіРёРІР°РЅРёСЏ
 	if (iteration > tractionTime)
 	{
 		for (int i = 0; i < branches.size(); i++)
@@ -578,7 +578,7 @@ void Figure::FindForcesKernel(int iteration)
 
 void Figure::FindRadiusVector()
 {
-	//сделать через transform
+	//СЃРґРµР»Р°С‚СЊ С‡РµСЂРµР· transform
 	for (int i = 0; i < h_balls.size(); i++) {
 		h_balls[i].x += h_forcesSumBall[i].x / 9;
 		h_balls[i].y += h_forcesSumBall[i].y / 9;
@@ -607,7 +607,7 @@ void Figure::ToFile(int iteration)
 	std::string pathLigand = "C:/Result/ligand/mca_out.csv." + std::to_string(iteration);
 	//std::string pathForce = "C:/Result/force/mca_out.csv.";
 
-	std::ofstream out(path.c_str()); // каждую итерацию пишем в новый файл. В данном случае путь указан для обычных шаров
+	std::ofstream out(path.c_str()); // РєР°Р¶РґСѓСЋ РёС‚РµСЂР°С†РёСЋ РїРёС€РµРј РІ РЅРѕРІС‹Р№ С„Р°Р№Р». Р’ РґР°РЅРЅРѕРј СЃР»СѓС‡Р°Рµ РїСѓС‚СЊ СѓРєР°Р·Р°РЅ РґР»СЏ РѕР±С‹С‡РЅС‹С… С€Р°СЂРѕРІ
 	std::ofstream outShell(pathShell.c_str());
 	std::ofstream outKernel(pathKernel.c_str());
 	std::ofstream outReceptor(pathReceptor.c_str());

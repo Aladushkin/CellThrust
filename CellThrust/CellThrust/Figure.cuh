@@ -16,8 +16,8 @@ private:
 	static std::vector<int> shellType; //вектор, из нулей единицы, нужен для определения шаров рецепторов и оболочки
 	static std::vector<int> ballType; //вектор, из нулей единицы, нужен для определения активных и обычных шаров
 
-	static std::vector<std::pair<int, int>> v_ActinSchedule; //вектор временных интервалов для включения актина
-	static std::vector<std::pair<int, int>> v_TractionSchedule; //вектор временных интервалов для включения транспортной силы
+	static std::vector<std::pair<int, int>> v_ActinSchedule; 
+ 	static std::vector<std::pair<int, int>> v_TractionSchedule; 
 
 	/*
 	static double l0; // 
