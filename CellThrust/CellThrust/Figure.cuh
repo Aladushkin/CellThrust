@@ -36,7 +36,7 @@ private:
 	static thrust::host_vector<double3> h_balls; // вектор шаров в памяти CPU
 	static thrust::host_vector<double3> h_forcesSumBall; // вектор сил всех шаров
 	static thrust::host_vector<double3> h_forcesBall; // вектор сил для отдельного шара
-	static thrust::host_vector<int> bondsCount; // массив для хранения толищны каждой адгезионной связи
+	static thrust::host_vector <std::pair<int, double3>> bondsCount; // массив для хранения толищны каждой адгезионной связи
 
 	static thrust::host_vector<double3> h_ligands; 
 

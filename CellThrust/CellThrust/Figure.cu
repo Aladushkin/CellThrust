@@ -33,12 +33,12 @@ std::vector<int> Figure::ballType;
 int Figure::receptorCount=0;
 int Figure::ligandCount=0;
 std::vector<int> Figure::shellType;
-thrust::host_vector<int> Figure::bondsCount;
+thrust::host_vector <std::pair<int, double3>> Figure::bondsCount;
 
 std::vector<std::pair<int, int>> Figure::v_ActinSchedule; 
 std::vector<std::pair<int, int>> Figure::v_TractionSchedule;
 
-double Figure::tractionForce=0;
+double Figure::tractionForce = 0;
 
 double3 Figure::kernel;
 double3 Figure::forceKernel;
@@ -290,7 +290,7 @@ void Figure::CreateLigands()
 	for (int j = 0; j <= walls.size()- 1; j++)
 	{
 		double3 n_vector; // нормальный вектор поверхности
-		double h = 0.3; // h - высота расположения лиганда над поверхностью
+		double h = 0.25; // h - высота расположения лиганда над поверхностью
 		n_vector.x = walls[j].x; n_vector.y = walls[j].y; n_vector.z = walls[j].z - walls[j].w / walls[j].z;
 		while (h_ligands.size() < ligandCount)
 		{
@@ -332,7 +332,9 @@ void Figure::InitializeVariable()
 
 	neighbors = thrust::host_vector<thrust::host_vector<double3*>>(h_shell.size());
 
-	bondsCount = thrust::host_vector<int>(h_shell.size(), 0); // изначально адгезионных связей нет
+	double3 nullLigand; nullLigand.x = 0; nullLigand.y = 0; nullLigand.z = 0;
+	std::pair<int, double3> nullPair; nullPair.first = 0; nullPair.second = nullLigand;
+	bondsCount = thrust::host_vector<std::pair<int,double3>>(h_shell.size(), nullPair); // изначально адгезионных связей нет
 	l_receptors = thrust::host_vector<double3*>(h_shell.size(), NULL); // массив рецепторов изначально пуст
 }
 
@@ -375,48 +377,48 @@ void Figure::FindDistanseShell()
 }
 
 void Figure::CreateStepSchedule()
- {
- 	int restOfTime = (iterationCount-actinTime) % stepTime; // îñòàòîê âðåìåíè
- 	int stepCount = (iterationCount - actinTime) / stepTime;  // êîëè÷åñòâî øàãîâ
- 	for (int i = 0; i < stepCount-1; i=i+2)
- 	{	
- 	std::pair<int, int> tmpActin(i*stepTime + actinTime, (i + 1)*stepTime + actinTime); // èíòåðâàë äëÿ àêòèíà
- 		std::pair<int, int> tmpTraction((i + 1)*stepTime + actinTime, (i + 2)*stepTime + actinTime); // òðàíñïîðòíûé èíòåðâàë
- 		v_ActinSchedule.push_back(tmpActin);
- 		v_TractionSchedule.push_back(tmpTraction);
- 	}
- 
- 	if (stepTime % 2 == 1) // åñëè ÷èñëî øàãîâ - íå÷åòíîå (ïîñëåäíèé ïîëíûé øàã - àêòèí)
- 	{
- 		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount+1)*stepTime + actinTime);
- 		v_TractionSchedule.push_back(lastStep);
- 
- 		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
- 		v_ActinSchedule.push_back(lastStep2);
- 
+{
+	int restOfTime = (iterationCount - actinTime) % stepTime;
+	int stepCount = (iterationCount - actinTime) / stepTime;
+	for (int i = 0; i < stepCount - 1; i = i + 2)
+	{
+		std::pair<int, int> tmpActin(i*stepTime + actinTime, (i + 1)*stepTime + actinTime);
+		std::pair<int, int> tmpTraction((i + 1)*stepTime + actinTime, (i + 2)*stepTime + actinTime);
+		v_ActinSchedule.push_back(tmpActin);
+		v_TractionSchedule.push_back(tmpTraction);
 	}
- 	else // åñëè ÷èñëî øàãîâ - ÷åòíîå (ïîñëåäíèé ïîëíûé øàã - òðàíñïîðòíûé)
- 	{
- 		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount + 1)*stepTime + actinTime);
- 		v_ActinSchedule.push_back(lastStep);
- 
- 		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
- 		v_TractionSchedule.push_back(lastStep2);
- 	}
- 	for (int i = 0; i < v_ActinSchedule.size(); i++)
- 	{
- 		std::cout << "Actin :" << v_ActinSchedule[i].first << " - " << v_ActinSchedule[i].second << std::endl;
- 	}
- 	for (int i = 0; i < v_TractionSchedule.size(); i++)
- 	{
- 		std::cout << "Traction :" << v_TractionSchedule[i].first << " - " << v_TractionSchedule[i].second << std::endl;
- 	}
- }
+
+	if (stepTime % 2 == 1)
+	{
+		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount + 1)*stepTime + actinTime);
+		v_TractionSchedule.push_back(lastStep);
+
+		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
+		v_ActinSchedule.push_back(lastStep2);
+
+	}
+	else
+	{
+		std::pair<int, int> lastStep(stepCount*stepTime + actinTime, (stepCount + 1)*stepTime + actinTime);
+		v_ActinSchedule.push_back(lastStep);
+
+		std::pair<int, int> lastStep2((stepCount + 1)*stepTime + actinTime, (stepCount + 2)*stepTime + actinTime);
+		v_TractionSchedule.push_back(lastStep2);
+	}
+	for (int i = 0; i < v_ActinSchedule.size(); i++)
+	{
+		std::cout << "Actin :" << v_ActinSchedule[i].first << " - " << v_ActinSchedule[i].second << std::endl;
+	}
+	for (int i = 0; i < v_TractionSchedule.size(); i++)
+	{
+		std::cout << "Traction :" << v_TractionSchedule[i].first << " - " << v_TractionSchedule[i].second << std::endl;
+	}
+}
 //------------------------------------------------------------------------------------------
 void Figure::FindForcesBall(int iteration)
 {
 	//Подсчёт сил ЛД для шаров цитоплазмы
-	
+
 	for (int i = 0; i < h_balls.size(); i++)
 	{
 		//подсчёт сил ЛД между шарами цитоплазмы
@@ -435,8 +437,8 @@ void Figure::FindForcesBall(int iteration)
 		h_max_forces_test.push_back(max);
 		*/
 		//--------------------------------------------------------------------------------------
-		
-		
+
+
 		h_forcesBall[i] = nullVec;
 		//суммирование всех сил
 		h_forcesSumBall[i] = thrust::reduce(h_forcesBall.begin(), h_forcesBall.end(), nullVec, SumDouble3());
@@ -467,7 +469,7 @@ void Figure::FindForcesBall(int iteration)
 	//Подсчёт сил тяжести
 	thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesSumBall.begin(), PlusG());
 
-	
+
 	if (iteration >= v_ActinSchedule[twoSteps].first && iteration < v_ActinSchedule[twoSteps].second)
 	{
 		for (int i = 0; i < branches.size(); i++)
@@ -485,16 +487,16 @@ void Figure::FindForcesBall(int iteration)
 			thrust::transform(h_balls.begin(), h_balls.end(), ballType.begin(), h_forcesBall.begin(), FindTractionForce(branches[i], kernel, tractionForce));
 			thrust::transform(h_forcesSumBall.begin(), h_forcesSumBall.end(), h_forcesBall.begin(), h_forcesSumBall.begin(), PlusDouble3());
 		}
-			if (iteration >= 0 && iteration < actinTime)
- 	{
- 	}
- 	else
- 	{
- 		if ((iteration >= v_ActinSchedule[twoSteps].first || iteration < v_TractionSchedule[twoSteps].second) == 0)
- 		{
- 			twoSteps++;
- 		}
- 	}
+	}
+	if (iteration >= 0 && iteration < actinTime)
+	{
+	}
+	else
+	{
+		if ((iteration >= v_ActinSchedule[twoSteps].first || iteration < v_TractionSchedule[twoSteps].second) == 0)
+		{
+			twoSteps++;
+		}
 	}
 }
 
